@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { db, Productos } from "astro:db";
+
+const productos = await db.select().from(Productos);
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const nombre_producto = formData.get("nombre_producto");
+  const precio = formData.get("precio");
+  if (typeof nombre_producto === "string" && typeof precio === "number") {
+    await db.insert(Productos).values({ nombre_producto, precio });
+    console.log({ nombre_producto, precio });
+  }
+}
+---
+
+<Layout title="Welcome to Astro.">
+  <main>
+    <h1>Prueba BBDD</h1>
+
+    <form method="POST">
+      <div>
+        <label>ingresa nombre del producto</label>
+        <input
+          type="text"
+          id="nombre_producto"
+          name="nombre_producto"
+          placeholder="PC"
+          required
+        />
+      </div>
+      <div>
+        <!--   <label>Familia del producto</label>
+        <input
+          type="text"
+          id="id_categoria"
+          name="familia"
+          placeholder="Familia"
+          required
+        />
+		-->
+      </div>
+      <div>
+        <label>precio</label>
+        <input type="text" id="precio" name="precio" placeholder="$" required />
+      </div>
+      <button type="submit">Guardar</button>
+    </form>
+  </main>
+
+  <h2>Muestra</h2>
+  {
+    productos.map(({ nombre_producto, precio }) => (
+      <article>
+        <p>Producto:{nombre_producto}</p>
+        <p>Precio:{precio}</p>
+      </article>
+    ))
+  }
+</Layout>
